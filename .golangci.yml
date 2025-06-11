@@ -3,9 +3,9 @@ version: "2"
 linters-settings:
   custom:
     llmci:
-      path: ./llmci.so
       description: "使用LLM分析Go代码文件"
       original-url: github.com/golangci/llmci
+      type: "module"
       settings:
         file-patterns: "*.go,*_test.go"
         prompt: "请分析这个Go代码文件，重点关注：1. 代码质量和最佳实践 2. 潜在的bug和安全问题 3. 性能优化建议 4. 代码可读性和维护性"
