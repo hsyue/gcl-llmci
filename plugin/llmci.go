@@ -205,11 +205,11 @@ func (a *LLMCiAnalyzer) analyzeWithLLM(content, filename string) (string, error)
 
 	// 检查API错误
 	if apiResp.Error != nil {
-		return "", fmt.Errorf("API error: %s", apiResp.Error.Message)
+		return "", fmt.Errorf("API error: %s, cause: %v", apiResp.Error.Message, respBody)
 	}
 	// 检查响应格式
 	if len(apiResp.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response, response: %v, finish", respBody)
+		return "", fmt.Errorf("no choices in response, cause: %v", respBody)
 	}
 
 	return apiResp.Choices[0].Message.Content, nil
