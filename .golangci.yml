@@ -4,7 +4,6 @@ linters-settings:
   custom:
     llmci:
       description: "使用LLM分析Go代码文件"
-      original-url: github.com/golangci/llmci
       type: "module"
       settings:
         file-patterns: "*.go,*_test.go"
