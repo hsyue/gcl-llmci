@@ -25,12 +25,14 @@ type LLMCiPluginConfig struct {
 	APIToken     string   `json:"api_token"`
 	Timeout      int      `json:"timeout"`
 	Enabled      bool     `json:"enabled"`
+	Model        string   `json:"model"`
 }
 
 // OpenAIRequest OpenAI API请求结构
 type OpenAIRequest struct {
 	Model    string    `json:"model"`
 	Messages []Message `json:"messages"`
+	Stream   bool      `json:"stream"`
 }
 
 type Message struct {
@@ -149,7 +151,7 @@ func getFileContent(fset *token.FileSet, file *ast.File) (string, error) {
 func (a *LLMCiAnalyzer) analyzeWithLLM(content, filename string) (string, error) {
 	// 构建请求
 	req := OpenAIRequest{
-		Model: "gpt-3.5-turbo",
+		Model: a.config.Model,
 		Messages: []Message{
 			{
 				Role:    "system",
@@ -208,7 +210,7 @@ func (a *LLMCiAnalyzer) analyzeWithLLM(content, filename string) (string, error)
 
 	// 检查响应格式
 	if len(apiResp.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response")
+		return "", fmt.Errorf("no choices in response, response: [%v]", respBody)
 	}
 
 	return apiResp.Choices[0].Message.Content, nil
