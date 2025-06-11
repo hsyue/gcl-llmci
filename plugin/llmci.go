@@ -19,12 +19,12 @@ import (
 
 // Config 配置结构
 type LLMCiPluginConfig struct {
-	FilePatterns []string `mapstructure:"file-patterns"`
-	Prompt       string   `mapstructure:"prompt"`
-	APIURL       string   `mapstructure:"api-url"`
-	APIToken     string   `mapstructure:"api-token"`
-	Timeout      int      `mapstructure:"timeout"`
-	Enabled      bool     `mapstructure:"enabled"`
+	FilePatterns []string `json:"file-patterns"`
+	Prompt       string   `json:"prompt"`
+	APIURL       string   `json:"api-url"`
+	APIToken     string   `json:"api-token"`
+	Timeout      int      `json:"timeout"`
+	Enabled      bool     `json:"enabled"`
 }
 
 // OpenAIRequest OpenAI API请求结构
