@@ -1,4 +1,4 @@
-package main
+package llmci
 
 import (
 	"bytes"
