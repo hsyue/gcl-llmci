@@ -29,7 +29,7 @@ func (f *LLMCiPlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
 	analyzer := &LLMCiAnalyzer{config: f.config}
 	return []*analysis.Analyzer{
 		{
-			Name: "-llmci",
+			Name: "llmci",
 			Doc:  "LLMCi Analyzer",
 			Run:  analyzer.run,
 		},

@@ -4,4 +4,4 @@ destination: ./bin/
 plugins:
   - module: 'github.com/hsyue/gcl-llmci'
     import: 'github.com/hsyue/gcl-llmci/plugin'
-    version: master
+    path: ./
