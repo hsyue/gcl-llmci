@@ -1,4 +1,4 @@
-package llmci
+package plugin
 
 import (
 	"go/parser"
