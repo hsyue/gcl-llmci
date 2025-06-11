@@ -2,7 +2,7 @@ version: "2"
 
 linters-settings:
   custom:
-    gcl-llmci:
+    llmci:
       description: "使用LLM分析Go代码文件"
       type: "module"
       settings:
@@ -15,4 +15,4 @@ linters-settings:
 
 linters:
   enable:
-    - gcl-llmci
+    - llmci

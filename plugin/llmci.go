@@ -1,9 +1,8 @@
-package llmci
+package plugin
 
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -19,7 +18,7 @@ import (
 )
 
 // Config 配置结构
-type Config struct {
+type LLMCiPluginConfig struct {
 	FilePatterns []string `mapstructure:"file-patterns"`
 	Prompt       string   `mapstructure:"prompt"`
 	APIURL       string   `mapstructure:"api-url"`
@@ -55,42 +54,26 @@ type APIError struct {
 }
 
 var (
-	filePatterns = flag.String("file-patterns", "*.go", "正则表达式模式，用于匹配要分析的文件")
-	prompt       = flag.String("prompt", "请分析这个Go代码文件，指出潜在的问题、改进建议和最佳实践。", "发送给LLM的提示词")
-	apiURL       = flag.String("api-url", "https://api.openai.com/v1/chat/completions", "OpenAI API地址")
-	apiToken     = flag.String("api-token", "", "OpenAI API Token")
-	timeout      = flag.Int("timeout", 30, "API请求超时时间（秒）")
-	enabled      = flag.Bool("enabled", true, "是否启用LLM分析")
+// filePatterns = flag.String("file-patterns", "*.go", "正则表达式模式，用于匹配要分析的文件")
+// prompt       = flag.String("prompt", "请分析这个Go代码文件，指出潜在的问题、改进建议和最佳实践。", "发送给LLM的提示词")
+// apiURL       = flag.String("api-url", "https://api.openai.com/v1/chat/completions", "OpenAI API地址")
+// apiToken     = flag.String("api-token", "", "OpenAI API Token")
+// timeout      = flag.Int("timeout", 30, "API请求超时时间（秒）")
+// enabled      = flag.Bool("enabled", true, "是否启用LLM分析")
 )
 
-// Analyzer 定义分析器
-var Analyzer = &analysis.Analyzer{
-	Name:  "llmci",
-	Doc:   "使用LLM分析指定的Go代码文件",
-	Run:   run,
-	Flags: flag.FlagSet{},
+type LLMCiAnalyzer struct {
+	config *LLMCiPluginConfig
 }
 
-func init() {
-	Analyzer.Flags.StringVar(filePatterns, "file-patterns", "*.go", "正则表达式模式，用于匹配要分析的文件")
-	Analyzer.Flags.StringVar(prompt, "prompt", "请分析这个Go代码文件，指出潜在的问题、改进建议和最佳实践。", "发送给LLM的提示词")
-	Analyzer.Flags.StringVar(apiURL, "api-url", "https://api.openai.com/v1/chat/completions", "OpenAI API地址")
-	Analyzer.Flags.StringVar(apiToken, "api-token", "", "OpenAI API Token")
-	Analyzer.Flags.IntVar(timeout, "timeout", 30, "API请求超时时间（秒）")
-	Analyzer.Flags.BoolVar(enabled, "enabled", true, "是否启用LLM分析")
-}
+func (a *LLMCiAnalyzer) run(pass *analysis.Pass) (interface{}, error) {
 
-func run(pass *analysis.Pass) (interface{}, error) {
-	if !*enabled {
-		return nil, nil
-	}
-
-	if *apiToken == "" {
+	if a.config.APIToken == "" {
 		return nil, fmt.Errorf("API token is required")
 	}
 
 	// 编译文件模式正则表达式
-	patterns := strings.Split(*filePatterns, ",")
+	patterns := a.config.FilePatterns
 	var regexps []*regexp.Regexp
 	for _, pattern := range patterns {
 		pattern = strings.TrimSpace(pattern)
@@ -136,7 +119,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 
 		// 发送到LLM进行分析
-		analysis, err := analyzeWithLLM(content, filename)
+		analysis, err := a.analyzeWithLLM(content, filename)
 		if err != nil {
 			pass.Reportf(file.Pos(), "LLM analysis failed: %v", err)
 			continue
@@ -172,14 +155,14 @@ func getFileContent(fset *token.FileSet, file *ast.File) (string, error) {
 }
 
 // analyzeWithLLM 使用LLM分析代码
-func analyzeWithLLM(content, filename string) (string, error) {
+func (a *LLMCiAnalyzer) analyzeWithLLM(content, filename string) (string, error) {
 	// 构建请求
 	req := OpenAIRequest{
 		Model: "gpt-3.5-turbo",
 		Messages: []Message{
 			{
 				Role:    "system",
-				Content: *prompt,
+				Content: a.config.Prompt,
 			},
 			{
 				Role:    "user",
@@ -195,18 +178,18 @@ func analyzeWithLLM(content, filename string) (string, error) {
 	}
 
 	// 创建HTTP请求
-	httpReq, err := http.NewRequest("POST", *apiURL, bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequest("POST", a.config.APIURL, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %v", err)
 	}
 
 	// 设置请求头
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+*apiToken)
+	httpReq.Header.Set("Authorization", "Bearer "+a.config.APIToken)
 
 	// 发送请求
 	client := &http.Client{
-		Timeout: time.Duration(*timeout) * time.Second,
+		Timeout: time.Duration(a.config.Timeout) * time.Second,
 	}
 	resp, err := client.Do(httpReq)
 	if err != nil {
