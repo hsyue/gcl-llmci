@@ -1,0 +1,7 @@
+# golangci-lint自定义构建配置
+version: v1.55.2
+name: custom-golangci-lint
+destination: ./bin/
+plugins:
+  - module: 'github.com/hsyue/gcl-llmci'
+    path: ./
