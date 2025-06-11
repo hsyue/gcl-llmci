@@ -19,12 +19,12 @@ import (
 
 // Config 配置结构
 type LLMCiPluginConfig struct {
-	FilePatterns []string `json:"file-patterns"`
-	Prompt       string   `json:"prompt"`
-	APIURL       string   `json:"api-url"`
-	APIToken     string   `json:"api-token"`
-	Timeout      int      `json:"timeout"`
-	Enabled      bool     `json:"enabled"`
+	FilePatterns []string `mapstructure:"file_patterns"`
+	Prompt       string   `mapstructure:"prompt"`
+	APIURL       string   `mapstructure:"api_url"`
+	APIToken     string   `mapstructure:"api_token"`
+	Timeout      int      `mapstructure:"timeout"`
+	Enabled      bool     `mapstructure:"enabled"`
 }
 
 // OpenAIRequest OpenAI API请求结构
@@ -52,15 +52,6 @@ type APIError struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
 }
-
-var (
-// filePatterns = flag.String("file-patterns", "*.go", "正则表达式模式，用于匹配要分析的文件")
-// prompt       = flag.String("prompt", "请分析这个Go代码文件，指出潜在的问题、改进建议和最佳实践。", "发送给LLM的提示词")
-// apiURL       = flag.String("api-url", "https://api.openai.com/v1/chat/completions", "OpenAI API地址")
-// apiToken     = flag.String("api-token", "", "OpenAI API Token")
-// timeout      = flag.Int("timeout", 30, "API请求超时时间（秒）")
-// enabled      = flag.Bool("enabled", true, "是否启用LLM分析")
-)
 
 type LLMCiAnalyzer struct {
 	config *LLMCiPluginConfig
