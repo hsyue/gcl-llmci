@@ -114,7 +114,7 @@ func (a *LLMCiAnalyzer) run(pass *analysis.Pass) (interface{}, error) {
 		// 发送到LLM进行分析
 		analysis, err := a.analyzeWithLLM(content, filename)
 		if err != nil {
-			pass.Reportf(file.Pos(), "LLM analysis failed: %v", err)
+			pass.Reportf(file.Pos(), "LLM analysis failed cause: %v", err)
 			continue
 		}
 
@@ -162,6 +162,7 @@ func (a *LLMCiAnalyzer) analyzeWithLLM(content, filename string) (string, error)
 				Content: fmt.Sprintf("文件名: %s\n\n代码内容:\n%s", filename, content),
 			},
 		},
+		Stream: false,
 	}
 
 	// 序列化请求
